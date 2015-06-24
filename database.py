@@ -37,27 +37,22 @@ con = lite.connect('getting_started2.db')
 with con: 
 
   cur = con.cursor()    
+
+#Drop table if it already exists: 
   cur.execute("DROP TABLE IF EXISTS cities")
   cur.execute("DROP TABLE IF EXISTS weather")
 
+#Create the Cities and Weather Tables: 
   cur.execute("CREATE TABLE cities (name text, state text)")
   cur.execute("CREATE TABLE weather (city text, year integer, warm_month text, cold_month text, average_high integer)")
 
+#Insert default values into Cities and Weather Tables: 
   cur.executemany("INSERT INTO cities VALUES(?, ?)", cities)
   cur.executemany("INSERT INTO weather VALUES(?, ?, ?, ?, ?)", weather)
 
 
-  cur.execute("SELECT * FROM cities WHERE name='{}'".format(user_input))
-
-
-
-# TODO: Add an Inner Join Search: 
-	# SELECT name, state, year, warm_month, cold_month 
-	# FROM cities 
-	# INNER JOIN weather 
-	#     ON name = city;
-
-
+#Search for the city the user provides as user_input
+  cur.execute("SELECT name, state, year, warm_month, cold_month FROM cities INNER JOIN weather ON name = city WHERE name='{}'".format(user_input))
 
 
   #answer = cur.fetchone()
@@ -65,9 +60,6 @@ with con:
   rows = cur.fetchall()
   cols = [desc[0] for desc in cur.description]
   df = pd.DataFrame(rows, columns=cols)  # What exactly is a dataframe? 
-	#header = cur.description
-
-#print answer
 
 print df
 
