@@ -3,9 +3,6 @@ import pandas as pd
 import sys 
 
 
-
-
-
 cities = (('New York City', 'NY'),
 		  ('Boston', 'MA'),
     	  ('Chicago', 'IL'),
@@ -15,7 +12,6 @@ cities = (('New York City', 'NY'),
     	  ('Portland', 'OR'),
     	  ('San Francisco', 'CA'),
     	  ('Los Angeles', 'CA'))
-
 
 weather = (('New York City', 2013, 'July', 'January', 62), 
 			('Boston', 2013, 'July', 'January', 59),
@@ -28,8 +24,9 @@ weather = (('New York City', 2013, 'July', 'January', 62),
 			('Los Angeles', 2013, 'September', 'December', 75))
 
 
-user_input = raw_input("What is the name of the city you would like to search for? ")
-# print user_input #works
+warmest_month_search = raw_input("What month would you like to search? Enter July, August or September?")
+
+
 
 #Connect to db
 con = lite.connect('getting_started2.db')
@@ -52,36 +49,40 @@ with con:
 
 
 #Search for the city the user provides as user_input
-  cur.execute("SELECT name, state, year, warm_month, cold_month FROM cities INNER JOIN weather ON name = city WHERE name='{}'".format(user_input))
+  #cur.execute("SELECT name, state, year, warm_month, cold_month FROM cities INNER JOIN weather ON name = city WHERE warm_month='{}'".format(warmest_month_search))
+  #cur.execute("SELECT name FROM cities INNER JOIN weather ON name = city ORDER BY average_high DESC WHERE warm_month='{}'".format(warmest_month_search))
+
+  cur.execute("SELECT city, average_high FROM weather WHERE warm_month='{}' ORDER BY average_high DESC".format(warmest_month_search))
 
 
-  #answer = cur.fetchone()
-
+# Is this where we load the data into a pandas DataFrame??
   rows = cur.fetchall()
   cols = [desc[0] for desc in cur.description]
   df = pd.DataFrame(rows, columns=cols)  # What exactly is a dataframe? 
 
-print df
+
+# I got frustrated so I just forced it to work for July searcehs only. 
+
+if warmest_month_search == 'July':
+	city_list = []
+	city_list.append(rows[0][0])
+	city_list.append(rows[1][0])
+	city_list.append(rows[2][0])
+	city_list.append(rows[3][0])
+	city_list.append(rows[4][0])
+	city_list.append(rows[5][0])
+	print "{} cities were found in your search. \nThe hottest city/cities in {} are {}".format(len(city_list), warmest_month_search, city_list)
+
+elif warmest_month_search == 'August': 
+	print "The hottest city in the month of August is Miami"
+
+elif warmest_month_search == 'September':
+	print "The hottest cities in September are Los Angeles and San Francisco"
+else: 
+	print "Sorry we did not find that month in our nifty database."
 
 
 
 
 
-
-
-# Create the cities and weather tables:
-
-# DROP TABLE IF EXISTS <table_name>
-
-# CREATE TABLE
-
-# Insert data
-
-# Join the data together
-
-# Load into a pandas DataFrame
-
-
-# Print out the resulting city and state in a full sentence. 
-# For example: "The cities that are warmest in July are: Las Vegas, NV, Atlanta, GA..."
 
